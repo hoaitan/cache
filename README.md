@@ -1,6 +1,6 @@
 # Cache - A multi level cache
 
-`Cache` implements mult cache levels:
+`Cache` implements multi cache levels:
 
 - Local cache: By using [freecache](https://github.com/coocood/freecache).
 - Redis cache: By using Redis.
@@ -9,7 +9,7 @@
 
 ## Installation
 
-Init go module before installation:
+Init go module first before installation:
 
 ```bash
 go get github.com/hoaitan/cache
@@ -53,7 +53,7 @@ sampleData := &Data{1}
 cachedData := new(Data)
 
 // localCache, redisCache or multiCache implement same Cache interface
-// so they has same way to use
+// so they have same way to use
 
 // Load missing cache
 multiCache.Get("key1", cachedData, func() error {
@@ -74,7 +74,7 @@ multiCache.Get("key1", cachedData, func() error {
 })
 fmt.Printf("with cache: cachedData=%+v\n", cachedData)
 
-// Invalid cache
+// Invalid cache in all levels
 multiCache.Delete("key1")
 ```
 
