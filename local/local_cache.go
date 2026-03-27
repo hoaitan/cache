@@ -2,6 +2,7 @@ package local
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
 
 	"github.com/coocood/freecache"
@@ -21,7 +22,7 @@ func New(cf Config) cache.Cache {
 	}
 }
 
-func (c *localCache) Set(key string, data interface{}, ttl int) (err error) {
+func (c *localCache) Set(_ context.Context, key string, data interface{}, ttl int) (err error) {
 	if !c.IsEnable() {
 		return nil
 	}
@@ -39,9 +40,9 @@ func (c *localCache) Set(key string, data interface{}, ttl int) (err error) {
 	return c.cacheEngine.Set([]byte(key), b, ttl)
 }
 
-func (c *localCache) Get(key string, ptr interface{}, fn cache.MissCacheFn) (err error) {
+func (c *localCache) Get(ctx context.Context, key string, ptr interface{}, fn cache.MissCacheFn) (err error) {
 	if !c.IsEnable() {
-		return fn()
+		return fn(ctx)
 	}
 
 	// Get cached value
@@ -52,7 +53,7 @@ func (c *localCache) Get(key string, ptr interface{}, fn cache.MissCacheFn) (err
 			return nil
 		}
 
-		return fn()
+		return fn(ctx)
 	}
 
 	// Decode
@@ -63,7 +64,7 @@ func (c *localCache) Get(key string, ptr interface{}, fn cache.MissCacheFn) (err
 	return nil
 }
 
-func (c *localCache) Delete(key string) (ok bool, err error) {
+func (c *localCache) Delete(_ context.Context, key string) (ok bool, err error) {
 	if !c.IsEnable() {
 		return false, nil
 	}
@@ -72,7 +73,7 @@ func (c *localCache) Delete(key string) (ok bool, err error) {
 
 }
 
-func (c *localCache) IsExist(key string) (ok bool, err error) {
+func (c *localCache) IsExist(_ context.Context, key string) (ok bool, err error) {
 	if !c.IsEnable() {
 		return false, nil
 	}
@@ -84,7 +85,7 @@ func (c *localCache) IsExist(key string) (ok bool, err error) {
 	return true, nil
 }
 
-func (c *localCache) Flush() (count int, err error) {
+func (c *localCache) Flush(_ context.Context) (count int, err error) {
 	if !c.IsEnable() {
 		return 0, nil
 	}
@@ -96,7 +97,7 @@ func (c *localCache) Flush() (count int, err error) {
 	return count, nil
 }
 
-func (c *localCache) IsReady() bool {
+func (c *localCache) IsReady(_ context.Context) bool {
 	return true
 }
 

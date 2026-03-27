@@ -1,6 +1,7 @@
 package id
 
 import (
+	"context"
 	"testing"
 
 	"github.com/hoaitan/cache/local"
@@ -8,42 +9,44 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	ctx := context.Background()
 	name := "abc"
 
 	cache := New(local.New(local.Config{
 		Enable: true,
 		Size:   1000000,
-	}), "test-id-cache").SetLoadFn(func(name string) (id string, err error) {
+	}), "test-id-cache").SetLoadFn(func(ctx context.Context, name string) (id string, err error) {
 		return name, nil
 	})
 	assert.NotNil(t, cache)
 
 	// Check empty cache
-	ok, err := cache.IsExist(name)
+	ok, err := cache.IsExist(ctx, name)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 
 	// Load empty cache
-	id, err := cache.GetOrSet(name)
+	id, err := cache.GetOrSet(ctx, name)
 	assert.Nil(t, err)
 	assert.Equal(t, name, id)
 
 	// Check loaded cache
-	ok, err = cache.IsExist(name)
+	ok, err = cache.IsExist(ctx, name)
 	assert.Nil(t, err)
 	assert.True(t, ok)
 
 	// Delete cache
-	err = cache.Delete(name)
+	err = cache.Delete(ctx, name)
 	assert.Nil(t, err)
 
 	// Check deleted cache
-	ok, err = cache.IsExist(name)
+	ok, err = cache.IsExist(ctx, name)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 }
 
 func TestNew_With_Missing_LoadFn(t *testing.T) {
+	ctx := context.Background()
 	name := "abc"
 	cache := New(local.New(local.Config{
 		Enable: true,
@@ -51,7 +54,7 @@ func TestNew_With_Missing_LoadFn(t *testing.T) {
 	}), "test-id-cache")
 
 	// Load empty cache
-	id, err := cache.GetOrSet(name)
+	id, err := cache.GetOrSet(ctx, name)
 	assert.NotNil(t, err)
 	assert.Equal(t, "", id)
 }

@@ -1,6 +1,7 @@
 package multi
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -39,7 +40,7 @@ func TestCacheImplement(t *testing.T) {
 	}, "test")
 
 	// Is Redis ready for testing
-	if enableRedisCache.IsReady() {
+	if enableRedisCache.IsReady(context.Background()) {
 		caches = append(caches, enableRedisCache)
 	}
 
