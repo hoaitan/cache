@@ -1,6 +1,7 @@
 package multi
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -19,9 +20,9 @@ func New(caches ...cache.Cache) cache.Cache {
 }
 
 // Set caches for all implements
-func (c *multiCaches) Set(key string, data interface{}, ttl int) (err error) {
+func (c *multiCaches) Set(ctx context.Context, key string, data interface{}, ttl int) (err error) {
 	for _, cache := range c.caches {
-		if err = cache.Set(key, data, ttl); err != nil {
+		if err = cache.Set(ctx, key, data, ttl); err != nil {
 			return err
 		}
 	}
@@ -30,15 +31,15 @@ func (c *multiCaches) Set(key string, data interface{}, ttl int) (err error) {
 }
 
 // Get first found cache in all implements
-func (c *multiCaches) Get(key string, ptr interface{}, fn cache.MissCacheFn) (err error) {
+func (c *multiCaches) Get(ctx context.Context, key string, ptr interface{}, fn cache.MissCacheFn) (err error) {
 	for _, cache := range c.caches {
 		isFound := true
-		checkFn := func() error {
+		checkFn := func(ctx context.Context) error {
 			isFound = false
 			return nil
 		}
 
-		if err = cache.Get(key, ptr, checkFn); err != nil {
+		if err = cache.Get(ctx, key, ptr, checkFn); err != nil {
 			return err
 		}
 
@@ -52,13 +53,13 @@ func (c *multiCaches) Get(key string, ptr interface{}, fn cache.MissCacheFn) (er
 		return nil
 	}
 
-	return fn()
+	return fn(ctx)
 }
 
 // Delete cache in all implements
-func (c *multiCaches) Delete(key string) (ok bool, err error) {
+func (c *multiCaches) Delete(ctx context.Context, key string) (ok bool, err error) {
 	for _, cache := range c.caches {
-		_ok, err := cache.Delete(key)
+		_ok, err := cache.Delete(ctx, key)
 		ok = ok || _ok
 
 		if err != nil {
@@ -70,9 +71,9 @@ func (c *multiCaches) Delete(key string) (ok bool, err error) {
 }
 
 // Get first found cache in all implements
-func (c *multiCaches) IsExist(key string) (ok bool, err error) {
+func (c *multiCaches) IsExist(ctx context.Context, key string) (ok bool, err error) {
 	for _, cache := range c.caches {
-		if ok, err = cache.IsExist(key); ok || err != nil {
+		if ok, err = cache.IsExist(ctx, key); ok || err != nil {
 			return ok, err
 		}
 	}
@@ -81,9 +82,9 @@ func (c *multiCaches) IsExist(key string) (ok bool, err error) {
 }
 
 // Flush all implements
-func (c *multiCaches) Flush() (count int, err error) {
+func (c *multiCaches) Flush(ctx context.Context) (count int, err error) {
 	for _, cache := range c.caches {
-		_count, err := cache.Flush()
+		_count, err := cache.Flush(ctx)
 		if err != nil {
 			return count, err
 		}
@@ -95,9 +96,9 @@ func (c *multiCaches) Flush() (count int, err error) {
 }
 
 // Check all cache implements are ready or not
-func (c *multiCaches) IsReady() (ok bool) {
+func (c *multiCaches) IsReady(ctx context.Context) (ok bool) {
 	for _, cache := range c.caches {
-		if ok = cache.IsReady(); !ok {
+		if ok = cache.IsReady(ctx); !ok {
 			return false
 		}
 	}

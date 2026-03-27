@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -18,7 +19,7 @@ func TestCacheImplement_Enable(t *testing.T) {
 	}, "test")
 
 	// Is Redis ready for testing
-	if !c.IsReady() {
+	if !c.IsReady(context.Background()) {
 		fmt.Println("Redis is not ready for testing. Exist!!!")
 		return
 	}
@@ -39,7 +40,7 @@ func TestCacheImplement_Disable(t *testing.T) {
 	}, "test")
 
 	// Is Redis ready for testing
-	if !c.IsReady() {
+	if !c.IsReady(context.Background()) {
 		fmt.Println("Redis is not ready for testing. Exist!!!")
 		return
 	}
